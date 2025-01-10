@@ -1,6 +1,6 @@
 import { Gender, Role } from "src/common/types/user.types";
 
-export class UserDto {
+export type UserInfo = {
     username: string;
     userId: string;
     name: string;

@@ -11,6 +11,7 @@ import { Request, Response } from 'express';
 import { IJwtPayload } from '../types/auth.type';
 import { AuthService } from '../services/auth.service';
 import { getCookieConfig } from 'src/common/helpers/cookie';
+import { REFRESH_COOKIE_KEY } from 'src/common/constants/general';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -23,8 +24,8 @@ export class AuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<Request>();
         const response = context.switchToHttp().getResponse<Response>();
-        const accessToken = request.headers.authorization; // Extract Bearer token
-        const refreshToken = request.cookies.refreshToken;
+        const accessToken = request.headers.authorization.split(' ')[1]; // Extract Bearer token
+        const refreshToken = request.cookies[REFRESH_COOKIE_KEY];
 
         if (!accessToken) {
             throw new UnauthorizedException('Access token is missing');

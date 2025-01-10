@@ -1,0 +1,1 @@
+export const EnumProperty = <T>(enumObj: Record<string, T>) => ({ enum: Object.values(enumObj) });

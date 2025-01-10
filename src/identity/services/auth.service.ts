@@ -5,7 +5,8 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
 import { IJwtPayload, ITokenData } from '../types/auth.type';
 import { ConfigService } from '@nestjs/config';
-import { ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY } from 'src/common/constants';
+import { ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY } from 'src/common/constants/general';
+import { LOGIN_RESPONSE_MESSAGES, LOGOUT_RESPONSE_MESSAGES } from 'src/identity/constants/api';
 
 @Injectable()
 export class AuthService {
@@ -39,11 +40,11 @@ export class AuthService {
     async login(loginDto: LoginDto): Promise<ITokenData> {
         const user = await this.userService.getUser({ username: loginDto.username });
         if (!user) {
-            throw new HttpException('User does not exist', HttpStatus.BAD_REQUEST);
+            throw new HttpException(LOGIN_RESPONSE_MESSAGES.USER_NOT_EXIST, HttpStatus.BAD_REQUEST);
         }
         const validPass = await bcrypt.compare(loginDto.password, user.password);
         if (!validPass) {
-            throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
+            throw new HttpException(LOGIN_RESPONSE_MESSAGES.INVALID_PASSWORD, HttpStatus.UNAUTHORIZED);
         }
         const tokens = await this.getNewTokens({ userId: user._id.toString(), username: user.username, role: user.role });
         await this.userService.updateUser(user._id.toString(), { refreshToken: tokens.refreshToken });
@@ -52,12 +53,12 @@ export class AuthService {
 
     async logout(refreshToken: string) {
         if (!refreshToken) {
-            throw new HttpException('Token required', HttpStatus.UNAUTHORIZED);
+            throw new HttpException(LOGOUT_RESPONSE_MESSAGES.REFRESH_TOKEN_REQUIRED, HttpStatus.UNAUTHORIZED);
         }
         const REFRESH_TOKEN_PRIVATE_KEY = this.configService.get('REFRESH_TOKEN_PRIVATE_KEY');
         const decoded = this.jwtService.verify(refreshToken, { secret: REFRESH_TOKEN_PRIVATE_KEY });
         if (!decoded || typeof decoded === 'string') {
-            throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+            throw new HttpException(LOGOUT_RESPONSE_MESSAGES.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
         }
         await this.userService.updateUser(decoded.userId, { refreshToken: '' });
         return null;

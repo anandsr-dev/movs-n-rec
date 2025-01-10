@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, mixin } from "@nestjs/common";
 import { Request } from 'express';
 import { Role } from "../types/user.types";
-import { AccessLevel } from "../constants";
+import { AccessLevel } from "../constants/general";
 
 export const RoleGuard = (role: Role) => {
   class RoleGuardMixin implements CanActivate {

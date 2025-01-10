@@ -4,8 +4,9 @@ import { FlattenMaps, Model } from 'mongoose';
 import { User, UserDocument } from '../schema/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { FindUserDto } from '../dto/find-user.dto';
-import { UserDto } from '../dto/user.dto';
+import { UserInfo } from '../types/user.type';
 import * as bcrypt from 'bcrypt';
+import { SIGNUP_RESPONSE_MESSAGES } from 'src/identity/constants/api';
 
 @Injectable()
 export class UserService {
@@ -13,8 +14,8 @@ export class UserService {
         @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     ) { }
 
-    private getFormattedUser(user: UserDocument): UserDto {
-        const formattedUser: UserDto = {
+    private getFormattedUser(user: UserDocument): UserInfo {
+        const formattedUser: UserInfo = {
             userId: user._id.toString(),
             username: user.username,
             name: user.name,
@@ -27,10 +28,10 @@ export class UserService {
         return formattedUser;
     }
 
-    async signup(createUserDto: CreateUserDto): Promise<UserDto> {
+    async signup(createUserDto: CreateUserDto): Promise<UserInfo> {
         const existingUser = await this.getUserInfo({ username: createUserDto.username });
         if (existingUser) {
-            throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+            throw new HttpException(SIGNUP_RESPONSE_MESSAGES.USER_ALREADY_EXIST, HttpStatus.BAD_REQUEST);
         }
         const hashedPass = await bcrypt.hash(createUserDto.password, 10);
         const user = await this.createUser({
@@ -41,7 +42,7 @@ export class UserService {
     };
 
     // Create a new user
-    async createUser(createUserDto: CreateUserDto): Promise<UserDto> {
+    async createUser(createUserDto: CreateUserDto): Promise<UserInfo> {
         const user = await this.userModel.create(createUserDto);
         return this.getFormattedUser(user);
     }
@@ -52,7 +53,7 @@ export class UserService {
         return user;
     }
 
-    async getUserInfo(getUserDto: FindUserDto): Promise<UserDto | null> {
+    async getUserInfo(getUserDto: FindUserDto): Promise<UserInfo | null> {
         const query = getUserDto.userId ? { _id: getUserDto.userId } : { username: getUserDto.username };
         const user = await this.userModel.findOne(query).lean();
         if (user === null) {

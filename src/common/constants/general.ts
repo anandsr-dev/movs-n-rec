@@ -1,5 +1,6 @@
 export const ACCESS_TOKEN_EXPIRY = '10m';
 export const REFRESH_TOKEN_EXPIRY = '1d';
+export const REFRESH_COOKIE_KEY = 'refreshToken';
 export const RoleEnum = {
     USER: 'user',
     ADMIN: 'admin',
