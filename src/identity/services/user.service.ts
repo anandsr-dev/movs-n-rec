@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FlattenMaps, Model } from 'mongoose';
+import { FlattenMaps, Model, UpdateQuery } from 'mongoose';
 import { User, UserDocument } from '../schema/user.schema';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { FindUserDto } from '../dto/find-user.dto';
@@ -62,7 +62,7 @@ export class UserService {
         return this.getFormattedUser(user);
     }
 
-    async updateUser(userId: string, payload: Record<string, any>) {
-        return await this.userModel.findByIdAndUpdate(userId, payload, { new: true });
+    async updateUser(userId: string, updateQuery: UpdateQuery<User>) {
+        return await this.userModel.findByIdAndUpdate(userId, updateQuery, { new: true });
     }
 }

@@ -10,6 +10,11 @@ export const LOGOUT_RESPONSE_MESSAGES = {
     REFRESH_TOKEN_REQUIRED: 'Refresh Token required'
 } as const;
 
+export const REFRESH_RESPONSE_MESSAGES = {
+    SUCCESS: 'New tokens issued successfully',
+    
+};
+
 export const SIGNUP_RESPONSE_MESSAGES = {
     USER_CREATED: 'User registered successfully',
     INVALID_ROLE: 'Invalid role value',

@@ -1,4 +1,4 @@
-import { Role } from "src/common/types/user.types";
+import { Role } from "./user.types";
 
 export type IJwtPayload = {
     userId: string;

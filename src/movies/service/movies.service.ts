@@ -5,9 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import { TmdbSearchParamsDto } from '../dto/tmdb.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Movie, MovieDocument } from '../schema/movie.schema';
-import { Model } from 'mongoose';
+import { Model, UpdateQuery } from 'mongoose';
 import { TMDB_Movie, TMDB_MovieCredits } from '../types/tmdb.type';
-import { CustomError } from 'src/common/helpers/custom.error';
+import { PAGINATION_CONFIG } from '../constants/api';
+import { UpdateMovieDto } from '../dto/movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -50,7 +51,6 @@ export class MoviesService {
         try {
             let url = this.getTmdbMovieDetailsURL(tmdbMovieId);
             const tmdbMovie = await this.apiService.fetch<TMDB_Movie>(url);
-            console.log('tmdbMovie', tmdbMovie)
             const tmdbMovieCredits = await this.apiService.fetch<TMDB_MovieCredits>(this.getTmdbMovieCreditsURL(tmdbMovieId));
             const cast = tmdbMovieCredits.cast.map((member) => member.original_name);
             const director = tmdbMovieCredits.crew.find((member) => member.department === DIRECTING_DEPARTMENT).original_name;
@@ -64,13 +64,37 @@ export class MoviesService {
                 cast,
                 description: tmdbMovie.overview
             };
-            console.log('movie', movie);
             const movieDoc = await this.movieModel.create(movie);
             return movieDoc;
         } catch (error) {
-            if(error instanceof CustomError) {
-                throw error;
-            }
+            throw error;
         }
+    }
+
+    async listMoviesPaginated(page: number = 1) {
+        const limit = PAGINATION_CONFIG.LIMIT
+        const skip = (page - 1) * limit;
+        const movies = await this.movieModel.find()
+        .skip(skip)
+        .limit(limit)
+        const total = await this.movieModel.countDocuments();
+        return {
+            movies,
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total/limit)
+        }
+    }
+
+    async findById(movieId: string) {
+        return this.movieModel.findById(movieId);
+    }
+
+    async updateMovie(movieId: string, updateQuery: UpdateQuery<Movie>) {
+        await this.movieModel.updateOne({ _id: movieId }, updateQuery);
+    }
+
+    async deleteMovie(movieId: string) {
+        await this.movieModel.deleteOne({ _id: movieId });
     }
 }

@@ -16,7 +16,7 @@ export class Movie {
     @Prop({ type: String, required: true })
     language: string;
 
-    @Prop({ type: String, required: true, enum: Object.values(GenreEnum) })
+    @Prop({ type: [String], required: true, enum: Object.values(GenreEnum) })
     genres: Genre[];
 
     @Prop({ type: Date, required: true })

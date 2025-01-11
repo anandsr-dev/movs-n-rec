@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MoviesModule } from './movies/movies.module';
 import { SharedModule } from './shared/shared.module';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -18,8 +19,9 @@ import { SharedModule } from './shared/shared.module';
     IdentityModule,
     MoviesModule,
     SharedModule,
+    JwtModule.register({ global: true })
     ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

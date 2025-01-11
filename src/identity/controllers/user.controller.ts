@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { AuthGuard } from '../guards/auth.guard';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 import { ApiResponse } from 'src/common/helpers/api-response';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UserInfo } from '../types/user.type';

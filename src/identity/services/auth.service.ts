@@ -3,7 +3,7 @@ import { UserService } from '../services/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../dto/login.dto';
-import { IJwtPayload, ITokenData } from '../types/auth.type';
+import { IJwtPayload, ITokenData } from 'src/common/types/auth.type';
 import { ConfigService } from '@nestjs/config';
 import { ACCESS_TOKEN_EXPIRY, REFRESH_TOKEN_EXPIRY } from 'src/common/constants/general';
 import { LOGIN_RESPONSE_MESSAGES, LOGOUT_RESPONSE_MESSAGES } from 'src/identity/constants/api';

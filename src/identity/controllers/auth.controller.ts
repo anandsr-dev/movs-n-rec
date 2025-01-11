@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import { getCookieConfig } from 'src/common/helpers/cookie';
 import { REFRESH_COOKIE_KEY } from 'src/common/constants/general';
 import { ApiBadRequestResponse, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { LOGIN_RESPONSE_MESSAGES, LOGOUT_RESPONSE_MESSAGES } from 'src/identity/constants/api';
+import { LOGIN_RESPONSE_MESSAGES, LOGOUT_RESPONSE_MESSAGES, REFRESH_RESPONSE_MESSAGES } from 'src/identity/constants/api';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +20,7 @@ export class AuthController {
     @ApiUnauthorizedResponse({ description: LOGIN_RESPONSE_MESSAGES.INVALID_PASSWORD })
     async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         const tokens = await this.authService.login(loginDto);
-        const payload = ApiResponse.success<null>(LOGIN_RESPONSE_MESSAGES.LOGGED_IN, null);
+        const payload = ApiResponse.success(LOGIN_RESPONSE_MESSAGES.LOGGED_IN, { exp: tokens.exp });
         res.cookie(REFRESH_COOKIE_KEY, tokens.refreshToken, getCookieConfig(24))
             .header('Authorization', tokens.accessToken)
             .status(200).json(payload);
@@ -38,5 +38,15 @@ export class AuthController {
         res.cookie(REFRESH_COOKIE_KEY, '', getCookieConfig(0))
             .status(200)
             .json(ApiResponse.success<null>(LOGOUT_RESPONSE_MESSAGES.LOGGED_OUT, null))
+    }
+
+    @Post('refresh')
+    async refresh(@Req() req: Request, @Res() res: Response) {
+        const newTokens = await this.authService.refresh(req.cookies[REFRESH_COOKIE_KEY]);
+        res
+        .cookie(REFRESH_COOKIE_KEY, newTokens.refreshToken, getCookieConfig(24)) // 24 hours expiry
+        .header('Authorization', newTokens.accessToken)
+        .status(200)
+        .json(ApiResponse.success(REFRESH_RESPONSE_MESSAGES.SUCCESS, { exp: newTokens.exp }));
     }
 }

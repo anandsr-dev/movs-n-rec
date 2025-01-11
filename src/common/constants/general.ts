@@ -19,3 +19,4 @@ export const AccessLevel = {
 export const CustomExceptions = {
     ExternalApiRequestError: 'ExternalApiRequestError'
 };
+export const SOMETHING_WENT_WRONG = 'Something went wrong';
