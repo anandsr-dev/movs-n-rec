@@ -16,3 +16,6 @@ export const AccessLevel = {
     admin: 2,
     superadmin: 3
 } as const;
+export const CustomExceptions = {
+    ExternalApiRequestError: 'ExternalApiRequestError'
+};

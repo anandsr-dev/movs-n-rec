@@ -1,0 +1,21 @@
+export const GenreEnum = {
+    "ACTION": "Action",
+    "ADVENTURE": "Adventure",
+    "ANIMATION": "Animation",
+    "COMEDY": "Comedy",
+    "CRIME": "Crime",
+    "DOCUMENTARY": "Documentary",
+    "DRAMA": "Drama",
+    "FAMILY": "Family",
+    "FANTASY": "Fantasy",
+    "HISTORY": "History",
+    "HORROR": "Horror",
+    "MUSIC": "Music",
+    "MYSTERY": "Mystery",
+    "ROMANCE": "Romance",
+    "SCIENCE FICTION": "Science Fiction",
+    "TV MOVIE": "TV Movie",
+    "THRILLER": "Thriller",
+    "WAR": "War",
+    "WESTERN": "Western"
+} as const;

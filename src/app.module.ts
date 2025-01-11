@@ -8,12 +8,16 @@ import { IdentityModule } from './identity/identity.module';
 import { AppController } from './app.controller';
 
 import { AppService } from './app.service';
+import { MoviesModule } from './movies/movies.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/movs-n-rec'),
     ConfigModule.forRoot({ isGlobal: true }),
     IdentityModule,
+    MoviesModule,
+    SharedModule,
     ],
   controllers: [AppController],
   providers: [AppService],
