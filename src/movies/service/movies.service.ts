@@ -157,7 +157,6 @@ export class MoviesService {
       }
     
       // Recommendations helper methods
-
       //Get movies by genres
       async getMoviesByGenres(genres: string[], limit: number = 10, skip: number = 0): Promise<any[]> {
         return this.movieModel.find({
@@ -165,5 +164,23 @@ export class MoviesService {
             averageRating: { $gte: 3 }
         })
         .skip(skip).limit(limit).exec();
+      }
+
+      //Analytics
+      async getTopRatedMovies(minRating = 3, limit = 10) {
+        return this.movieModel.aggregate([
+          {
+            $match: { averageRating: { $gte: minRating } }
+          },
+          {
+            $sort: { averageRating: -1 }
+          },
+          {
+            $limit: limit,
+          },
+          {
+            $project: { title: 1, averageRating: 1, description: 1, _id: 0 }
+          },
+        ]);
       }
 }

@@ -49,7 +49,7 @@ export class ReviewService {
         return {
             reviews,
             currentPage: page,
-            totalPages: Math.ceil(totalCount/limit),
+            totalPages: Math.ceil(totalCount / limit),
         }
     }
 
@@ -63,5 +63,40 @@ export class ReviewService {
             }
         }).populate('movieId').exec()
         return reviews.map((review) => review.movieId)
-      }
+    }
+
+    async getMostRatedMovies(limit = 10): Promise<any[]> {
+        return this.reviewModel.aggregate([
+            {
+                $group: {
+                    _id: '$movieId',
+                    numberOfRatings: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { numberOfRatings: -1 },
+            },
+            {
+                $limit: limit,
+            },
+            {
+                $lookup: {
+                    from: 'movies',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'movie',
+                },
+            },
+            {
+                $unwind: '$movie',
+            },
+            {
+                $project: {
+                    title: '$movie.title',
+                    description: '$movie.description',
+                    numberOfRatings: 1,
+                },
+            },
+        ]);
+    }
 }

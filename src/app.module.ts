@@ -13,6 +13,7 @@ import { SharedModule } from './shared/shared.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RecommendationsModule } from './recommendations/recommendations.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     SharedModule,
     JwtModule.register({ global: true }),
     RecommendationsModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
+    AnalyticsModule
     ],
   controllers: [AppController],
   providers: [AppService]
