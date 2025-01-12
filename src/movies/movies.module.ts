@@ -7,6 +7,9 @@ import { SharedModule } from 'src/shared/shared.module';
 import { Review, ReviewSchema } from './schema/review.schema';
 import { IdentityModule } from 'src/identity/identity.module';
 import { ReviewService } from './service/review.service';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { SearchController } from './controller/search.controller';
+import { SearchService } from './service/search.service';
 
 @Module({
   imports: [
@@ -15,9 +18,22 @@ import { ReviewService } from './service/review.service';
       { name: Review.name, schema: ReviewSchema }
     ]),
     SharedModule,
-    IdentityModule
+    IdentityModule,
+    ElasticsearchModule.registerAsync({
+      useFactory: () => ({
+        node: process.env.ELASTICSEARCH_NODE || 'http://localhost:9200',
+        auth: {
+          username: process.env.ELASTICSEARCH_USERNAME || '',
+          password: process.env.ELASTICSEARCH_PASSWORD || '',
+        },
+        caFingerprint: process.env.ELASTICSEARCH_SSL_FINGERPRINT,
+        tls: {
+          rejectUnauthorized: false
+        }
+      }),
+    }),
   ],
-  providers: [MoviesService, ReviewService],
-  controllers: [MoviesController]
+  providers: [MoviesService, ReviewService, SearchService],
+  controllers: [MoviesController, SearchController]
 })
 export class MoviesModule { }

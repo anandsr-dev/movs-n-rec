@@ -8,13 +8,14 @@ import { Movie, MovieDocument } from '../schema/movie.schema';
 import { Model, UpdateQuery } from 'mongoose';
 import { TMDB_Movie, TMDB_MovieCredits } from '../types/tmdb.type';
 import { PAGINATION_CONFIG } from '../constants/api';
-import { UpdateMovieDto } from '../dto/movie.dto';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
 export class MoviesService {
     constructor(
         private readonly apiService: ApiService,
         private readonly configService: ConfigService,
+        private readonly elasticsearchService: ElasticsearchService,
         @InjectModel(Movie.name) private readonly movieModel: Model<MovieDocument>
     ) { }
 
@@ -65,6 +66,7 @@ export class MoviesService {
                 description: tmdbMovie.overview
             };
             const movieDoc = await this.movieModel.create(movie);
+            await this.indexMovieInElasticsearch(movieDoc);
             return movieDoc;
         } catch (error) {
             throw error;
@@ -91,10 +93,52 @@ export class MoviesService {
     }
 
     async updateMovie(movieId: string, updateQuery: UpdateQuery<Movie>) {
-        await this.movieModel.updateOne({ _id: movieId }, updateQuery);
+        const movie = await this.movieModel.findOneAndUpdate({ _id: movieId }, updateQuery, { new: true });
+        await this.updateMovieInElasticsearch(movie);
     }
 
     async deleteMovie(movieId: string) {
         await this.movieModel.deleteOne({ _id: movieId });
+        await this.removeMovieFromElasticsearch(movieId);
     }
+
+    async indexMovieInElasticsearch(movie: MovieDocument): Promise<void> {
+        await this.elasticsearchService.index({
+          index: 'movies',
+          id: movie._id.toString(),
+          body: {
+            title: movie.title,
+            description: movie.description,
+            director: movie.director,
+            genres: movie.genres,
+            releaseDate: movie.releaseDate,
+            averageRating: movie.averageRating,
+          },
+        });
+      }
+    
+      async updateMovieInElasticsearch(movie: MovieDocument): Promise<void> {
+        await this.elasticsearchService.update({
+          index: 'movies',
+          id: movie._id.toString(),
+          body: {
+            doc: {
+              title: movie.title,
+              description: movie.description,
+              director: movie.director,
+              genres: movie.genres,
+              releaseDate: movie.releaseDate,
+              averageRating: movie.averageRating,
+            },
+          },
+        });
+      }
+    
+      async removeMovieFromElasticsearch(movieId: string): Promise<void> {
+        await this.elasticsearchService.delete({
+          index: 'movies',
+          id: movieId,
+        });
+      }
+    
 }

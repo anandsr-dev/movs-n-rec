@@ -2,11 +2,13 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Genre } from '../../common/types/genre.type';
 import { GenreEnum } from '../../common/constants/genre';
+import { MoviesService } from '../service/movies.service';
 
 export type MovieDocument = HydratedDocument<Movie>;
 
 @Schema({ timestamps: true, _id: true })
 export class Movie {
+    
     @Prop({ type: Number, required: true, unique: true })
     movieId: number;
 
