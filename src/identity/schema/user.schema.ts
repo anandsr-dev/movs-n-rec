@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types, Schema as SchemaType, ObjectId } from 'mongoose';
+import { HydratedDocument, Types, Schema as SchemaType } from 'mongoose';
 import { GenderEnum, RoleEnum } from 'src/common/constants/general';
 import { Genre } from 'src/common/types/genre.type';
 import { Gender, Role } from 'src/common/types/user.types';
@@ -33,7 +33,7 @@ export class User {
   favoriteGenres?: Genre[]
 
   @Prop({ type: [{ type: SchemaType.ObjectId, ref: 'Review' }] })
-  reviews?: ObjectId[];
+  reviews?: SchemaType.Types.ObjectId[];
 
   @Prop({ type: String })
   refreshToken?: string;

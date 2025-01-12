@@ -90,7 +90,6 @@ export class MoviesController {
 
     // Fetch all reviews of a movie
     @ApiOkResponse({ description: GET_ALL_REVIEWS_RESPONSES.SUCCESS })
-    @UseGuards(AuthGuard)
     @Get('/:id/reviews')
     async getAllReviews(@Param('id') movieId: string, @Query('page') page: number) {
         const res = await this.reviewService.getAllReviews(movieId, page);

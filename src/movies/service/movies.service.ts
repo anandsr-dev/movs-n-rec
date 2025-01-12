@@ -9,6 +9,7 @@ import { Model, UpdateQuery } from 'mongoose';
 import { TMDB_Movie, TMDB_MovieCredits } from '../types/tmdb.type';
 import { PAGINATION_CONFIG } from '../constants/api';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { UserService } from 'src/identity/services/user.service';
 
 @Injectable()
 export class MoviesService {
@@ -16,6 +17,7 @@ export class MoviesService {
         private readonly apiService: ApiService,
         private readonly configService: ConfigService,
         private readonly elasticsearchService: ElasticsearchService,
+        private readonly userService: UserService,
         @InjectModel(Movie.name) private readonly movieModel: Model<MovieDocument>
     ) { }
 
@@ -141,4 +143,14 @@ export class MoviesService {
         });
       }
     
+      // Recommendations helper methods
+
+      //Get movies by genres
+      async getMoviesByGenres(genres: string[], limit: number = 10, skip: number = 0): Promise<any[]> {
+        return this.movieModel.find({
+            genres: { $in: genres },
+            averageRating: { $gte: 3 }
+        })
+        .skip(skip).limit(limit).exec();
+      }
 }

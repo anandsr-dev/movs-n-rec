@@ -1,3 +1,5 @@
+import { Schema } from "mongoose";
+import { Genre } from "src/common/types/genre.type";
 import { Gender, Role } from "src/common/types/user.types";
 
 export type UserInfo = {
@@ -8,5 +10,6 @@ export type UserInfo = {
     gender: Gender;
     state: string;
     role: Role;
-    reviews: any;
+    reviews: Schema.Types.ObjectId[];
+    favoriteGenres: Genre[]
 }

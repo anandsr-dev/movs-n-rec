@@ -23,7 +23,8 @@ export class UserService {
             state: user.state,
             dob: user.dob.toISOString(),
             role: user.role,
-            reviews: user.reviews
+            reviews: user.reviews,
+            favoriteGenres: user.favoriteGenres
         };
         return formattedUser;
     }
@@ -64,5 +65,12 @@ export class UserService {
 
     async updateUser(userId: string, updateQuery: UpdateQuery<User>) {
         return await this.userModel.findByIdAndUpdate(userId, updateQuery, { new: true });
+    }
+
+    async findUsersWithSimilarTaste(user: UserInfo, skip: number = 0, limit: number = 20) {
+        return this.userModel.find({
+            _id: { $ne: user.userId },
+            favoriteGenres: { $in: user.favoriteGenres }
+        }).skip(skip).limit(limit).exec()
     }
 }

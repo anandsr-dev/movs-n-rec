@@ -20,3 +20,4 @@ export const CustomExceptions = {
     ExternalApiRequestError: 'ExternalApiRequestError'
 };
 export const SOMETHING_WENT_WRONG = 'Something went wrong';
+export const INVALID_TOKEN = 'Invalid token';

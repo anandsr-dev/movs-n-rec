@@ -37,17 +37,31 @@ export class ReviewService {
     }
 
     // Get all reviews of a movie
-    async getAllReviews(movieId: string, page: number) {
+    async getAllReviews(movieId: string, page: number = 1) {
         const limit = PAGINATION_CONFIG.LIMIT;
         const skip = (page - 1) * limit;
         const reviews = await this.reviewModel.find({ movieId })
             .skip(skip)
             .limit(limit)
-        const totalPages = await this.reviewModel.countDocuments();
+            .populate('userId')
+            .populate('movieId')
+        const totalCount = await this.reviewModel.countDocuments({ movieId });
         return {
             reviews,
             currentPage: page,
-            totalPages,
+            totalPages: Math.ceil(totalCount/limit),
         }
     }
+
+    async getMoviesFromUserReviews(userIds: any[]) {
+        const reviews = await this.reviewModel.find({
+            userId: {
+                $in: userIds
+            },
+            rating: {
+                $gte: 3
+            }
+        }).populate('movieId').exec()
+        return reviews.map((review) => review.movieId)
+      }
 }

@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { MoviesModule } from './movies/movies.module';
 import { SharedModule } from './shared/shared.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { RecommendationsModule } from './recommendations/recommendations.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
     IdentityModule,
     MoviesModule,
     SharedModule,
-    JwtModule.register({ global: true })
+    JwtModule.register({ global: true }),
+    RecommendationsModule
     ],
   controllers: [AppController],
   providers: [AppService]

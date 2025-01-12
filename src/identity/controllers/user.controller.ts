@@ -1,12 +1,14 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { ApiResponse } from 'src/common/helpers/api-response';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UserInfo } from '../types/user.type';
 import { RoleGuard } from '../../common/guards/role.guard';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
-import { CREATE_ADMIN_RESPONSE_MESSAGES, GET_USER_DETAILS, SIGNUP_RESPONSE_MESSAGES } from 'src/identity/constants/api';
+import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOkResponse } from '@nestjs/swagger';
+import { CREATE_ADMIN_RESPONSE_MESSAGES, GET_USER_DETAILS, SIGNUP_RESPONSE_MESSAGES, UPDATE_USER_DETAILS } from 'src/identity/constants/api';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { INVALID_TOKEN } from 'src/common/constants/general';
 
 @Controller('user')
 export class UserController {
@@ -45,5 +47,18 @@ export class UserController {
     async getUserInfo(@Req() req) {
         const res = await this.userService.getUserInfo(req.user);
         return ApiResponse.success(GET_USER_DETAILS.FETCHED_USER_DETAILS, res);
+    }
+
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @Put('profile')
+    @ApiOkResponse({ description: UPDATE_USER_DETAILS.SUCCESS })
+    @ApiInternalServerErrorResponse({ description: INVALID_TOKEN })
+    async updateUserDetails(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+        if(!req.user || !req.user.userId) {
+            throw new Error(INVALID_TOKEN)
+        }
+        await this.userService.updateUser(req.user.userId, updateUserDto);
+        return ApiResponse.success(UPDATE_USER_DETAILS.SUCCESS, null);
     }
 }

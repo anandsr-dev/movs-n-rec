@@ -34,6 +34,7 @@ import { SearchService } from './service/search.service';
     }),
   ],
   providers: [MoviesService, ReviewService, SearchService],
-  controllers: [MoviesController, SearchController]
+  controllers: [MoviesController, SearchController],
+  exports: [MoviesService, ReviewService]
 })
 export class MoviesModule { }

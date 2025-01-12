@@ -29,3 +29,7 @@ export const CREATE_ADMIN_RESPONSE_MESSAGES = {
 export const GET_USER_DETAILS = {
     FETCHED_USER_DETAILS: 'User details fetched successfully'
 }
+
+export const UPDATE_USER_DETAILS = {
+    SUCCESS: 'User details updated successfully'
+}
