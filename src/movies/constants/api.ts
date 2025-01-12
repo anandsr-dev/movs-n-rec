@@ -29,3 +29,8 @@ export const ADD_REVIEW_RESPONSES = {
 export const GET_ALL_REVIEWS_RESPONSES = {
     SUCCESS: 'Reviews fetched successfully'
 }
+
+export type EVENT_EMITTER_PAYLOAD = {
+    movieTitle: string;
+    genres: string[]
+}

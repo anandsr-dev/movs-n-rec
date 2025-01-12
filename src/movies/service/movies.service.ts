@@ -10,6 +10,8 @@ import { TMDB_Movie, TMDB_MovieCredits } from '../types/tmdb.type';
 import { PAGINATION_CONFIG } from '../constants/api';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { UserService } from 'src/identity/services/user.service';
+import { NotificationService } from './notification.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class MoviesService {
@@ -17,7 +19,7 @@ export class MoviesService {
         private readonly apiService: ApiService,
         private readonly configService: ConfigService,
         private readonly elasticsearchService: ElasticsearchService,
-        private readonly userService: UserService,
+        private readonly eventEmitter: EventEmitter2,
         @InjectModel(Movie.name) private readonly movieModel: Model<MovieDocument>
     ) { }
 
@@ -42,6 +44,16 @@ export class MoviesService {
 
     private getTmdbMovieCreditsURL(tmdbMovieId: string) {
         return `${TMDB_BASE_URL}/${TMDB_MOVIE_API_PATH}/${tmdbMovieId}/${TMDB_MOVIE_CREDITS_PATH}?${API_KEY_PARAM}=${this.API_KEY}&${TMDB_DEFAULT_LANGUAGE_QUERY}`;
+    }
+
+    private emitMovieAddedEvent(movie) {
+      this.eventEmitter.emit(
+        'movie.added',
+        {
+          title: movie.title,
+          genres: movie.genres
+        }
+      );
     }
 
     async searchTMDB(searchParams: TmdbSearchParamsDto) {
@@ -69,6 +81,7 @@ export class MoviesService {
             };
             const movieDoc = await this.movieModel.create(movie);
             await this.indexMovieInElasticsearch(movieDoc);
+            this.emitMovieAddedEvent({ title: movie.title, genres: movie.genres });
             return movieDoc;
         } catch (error) {
             throw error;

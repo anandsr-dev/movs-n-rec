@@ -12,6 +12,7 @@ import { MoviesModule } from './movies/movies.module';
 import { SharedModule } from './shared/shared.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RecommendationsModule } from './recommendations/recommendations.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { RecommendationsModule } from './recommendations/recommendations.module'
     MoviesModule,
     SharedModule,
     JwtModule.register({ global: true }),
-    RecommendationsModule
+    RecommendationsModule,
+    EventEmitterModule.forRoot()
     ],
   controllers: [AppController],
   providers: [AppService]

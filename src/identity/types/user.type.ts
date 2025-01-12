@@ -11,5 +11,6 @@ export type UserInfo = {
     state: string;
     role: Role;
     reviews: Schema.Types.ObjectId[];
-    favoriteGenres: Genre[]
+    favoriteGenres: Genre[],
+    email: string;
 }

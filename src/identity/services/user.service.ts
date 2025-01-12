@@ -7,6 +7,7 @@ import { FindUserDto } from '../dto/find-user.dto';
 import { UserInfo } from '../types/user.type';
 import * as bcrypt from 'bcrypt';
 import { SIGNUP_RESPONSE_MESSAGES } from 'src/identity/constants/api';
+import { Genre } from 'src/common/types/genre.type';
 
 @Injectable()
 export class UserService {
@@ -24,7 +25,8 @@ export class UserService {
             dob: user.dob.toISOString(),
             role: user.role,
             reviews: user.reviews,
-            favoriteGenres: user.favoriteGenres
+            favoriteGenres: user.favoriteGenres,
+            email: user.email
         };
         return formattedUser;
     }
@@ -65,6 +67,10 @@ export class UserService {
 
     async updateUser(userId: string, updateQuery: UpdateQuery<User>) {
         return await this.userModel.findByIdAndUpdate(userId, updateQuery, { new: true });
+    }
+
+    async findByGenresCursor(genres: Genre[]) {
+        return this.userModel.find({ favoriteGenres: { $in: genres } }).cursor();
     }
 
     async findUsersWithSimilarTaste(user: UserInfo, skip: number = 0, limit: number = 20) {

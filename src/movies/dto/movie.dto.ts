@@ -9,5 +9,5 @@ export class UpdateMovieDto {
     releaseDate?: Date;
     director?: string;
     cast?: string[];
-    description?: string;
+    description?: string
 }

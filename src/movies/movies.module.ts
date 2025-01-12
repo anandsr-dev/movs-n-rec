@@ -10,6 +10,7 @@ import { ReviewService } from './service/review.service';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { SearchController } from './controller/search.controller';
 import { SearchService } from './service/search.service';
+import { NotificationService } from './service/notification.service';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { SearchService } from './service/search.service';
       }),
     }),
   ],
-  providers: [MoviesService, ReviewService, SearchService],
+  providers: [MoviesService, ReviewService, SearchService, NotificationService],
   controllers: [MoviesController, SearchController],
   exports: [MoviesService, ReviewService]
 })
