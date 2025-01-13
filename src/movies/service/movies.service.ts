@@ -9,8 +9,6 @@ import { Model, UpdateQuery } from 'mongoose';
 import { TMDB_Movie, TMDB_MovieCredits } from '../types/tmdb.type';
 import { PAGINATION_CONFIG } from '../constants/api';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { UserService } from 'src/identity/services/user.service';
-import { NotificationService } from './notification.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()

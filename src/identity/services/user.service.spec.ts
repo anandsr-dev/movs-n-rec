@@ -5,7 +5,6 @@ import { User } from '../schema/user.schema';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { SIGNUP_RESPONSE_MESSAGES } from 'src/identity/constants/api';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -40,11 +39,18 @@ describe('UserService', () => {
   beforeEach(async () => {
     userModel = {
       create: jest.fn().mockResolvedValue(mockUser),
-      findOne: jest.fn().mockResolvedValue(mockUser),
+      findOne: jest.fn().mockImplementation(() => ({
+        exec: jest.fn().mockResolvedValue(mockUser),
+        lean: jest.fn().mockResolvedValue(mockUser),
+      })),
       findByIdAndUpdate: jest.fn().mockResolvedValue(mockUser),
-      find: jest.fn().mockResolvedValue([mockUser]),
-      lean: jest.fn().mockResolvedValue(mockUser),
-      cursor: jest.fn().mockResolvedValue([mockUser]),
+      find: jest.fn().mockImplementation(() => ({
+        exec: jest.fn().mockResolvedValue([mockUser]),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockResolvedValue([mockUser]),
+        cursor: jest.fn().mockReturnValue(mockUser),
+      })),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -52,7 +58,7 @@ describe('UserService', () => {
         UserService,
         {
           provide: getModelToken(User.name),
-          useValue: userModel,
+          useValue: await userModel,
         },
       ],
     }).compile();
@@ -65,17 +71,20 @@ describe('UserService', () => {
   });
 
   describe('signup', () => {
-    it('should throw an exception if user already exists', async () => {
-      userModel.findOne = jest.fn().mockResolvedValue(mockUser);
+    it('should throw an error if the username already exists', async () => {
+      const createUserDto = { username: 'test', password: 'password' };
+      const existingUser = { username: 'test' };
 
-      await expect(userService.signup(mockCreateUserDto)).rejects.toThrow(
-        new HttpException(SIGNUP_RESPONSE_MESSAGES.USER_ALREADY_EXIST, HttpStatus.BAD_REQUEST),
+      jest.spyOn(userService, 'getUserInfo').mockResolvedValue(existingUser as any);
+
+      await expect(userService.signup(createUserDto as any)).rejects.toThrow(
+        new HttpException('User already exists', HttpStatus.BAD_REQUEST),
       );
     });
 
     it('should successfully create a new user', async () => {
       const hashedPassword = await bcrypt.hash(mockCreateUserDto.password, 10);
-      userModel.findOne = jest.fn().mockResolvedValue(null);
+      jest.spyOn(userService, 'getUserInfo').mockResolvedValue(null);
       userModel.create = jest.fn().mockResolvedValue({
         ...mockUser,
         password: hashedPassword,
@@ -104,8 +113,15 @@ describe('UserService', () => {
     });
 
     it('should return null if user is not found', async () => {
-      userModel.findOne = jest.fn().mockResolvedValue(null);
-      const result = await userService.getUserInfo({ username: 'non_existent_user' });
+      const nonExistentUser = { username: 'non_existent_user' };
+      const mockQuery = {
+        lean: jest.fn().mockResolvedValue(null),  // mock the return value of lean()
+        exec: jest.fn().mockResolvedValue(null),  // mock the return value of exec()
+      };
+    
+      userModel.findOne = jest.fn().mockReturnValue(mockQuery);
+    
+      const result = await userService.getUserInfo(nonExistentUser);
       expect(result).toBeNull();
     });
   });
@@ -123,7 +139,7 @@ describe('UserService', () => {
   describe('findByGenresCursor', () => {
     it('should return users with matching favorite genres', async () => {
       const result = await userService.findByGenresCursor(['Comedy']);
-      expect(result).toEqual([mockUser]);
+      expect(result).toEqual(mockUser);
     });
   });
 
