@@ -10,7 +10,7 @@ export type UserInfo = {
     gender: Gender;
     state: string;
     role: Role;
-    reviews: Schema.Types.ObjectId[];
+    reviews?: Schema.Types.ObjectId[];
     favoriteGenres: Genre[],
     email: string;
 }

@@ -6,6 +6,6 @@ export class UpdateUserDto {
     dob?: Date;
     gender?: Gender;
     state?: string;
-    favoriteGenres: Genre[];
-    email: string;
+    favoriteGenres?: Genre[];
+    email?: string;
 }

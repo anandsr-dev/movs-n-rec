@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
 
         const ACCESS_TOKEN_PRIVATE_KEY = this.configService.get<string>('ACCESS_TOKEN_PRIVATE_KEY');
         if (!ACCESS_TOKEN_PRIVATE_KEY) {
-            throw new UnauthorizedException('Token private key is not configured');
+            throw new UnauthorizedException('Token key is not configured');
         }
 
         try {
